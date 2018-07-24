@@ -26,6 +26,7 @@ func (observable *dummyObservable) Identifier() Identifier {
 func (observable *dummyObservable) Poll() []interface{} {
 	observable.launchesCount++
 	var result []interface{}
+	result = append(result, time.Now())
 	return result
 }
 
@@ -64,4 +65,11 @@ func TestPollingIsStoppedSuccessfully(t *testing.T) {
 	launchesCount := observable.launchesCount
 	time.Sleep(time.Millisecond)
 	assert.Equal(t, launchesCount, observable.launchesCount, "Polling must be stopped")
+}
+
+func TestUnwatchWithoutWatchBefore(t *testing.T) {
+	consumer := dummyConsumer{}
+	broker := NewBroker(consumer)
+	observable := dummyObservable{launchesCount: 0, interval: 0}
+	broker.Unwatch(&observable)
 }
