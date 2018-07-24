@@ -23,9 +23,7 @@ func NewBroker(consumer Consumer) Broker {
 
 // Watch function is used to initiate watching to some observable object
 func (broker *Broker) Watch(observable Observable) {
-	fmt.Printf("Start watching %s\n", observable.Identifier())
 	broker.identifiers[observable.Identifier()]++
-	fmt.Printf("Current channel: %v\n", broker.observables[observable.Identifier()])
 	_, isRunning := broker.observables[observable.Identifier()]
 	if !isRunning {
 		broker.runPolling(observable)
@@ -36,8 +34,8 @@ func (broker *Broker) Watch(observable Observable) {
 // If some observable object has no watchers - polling must be stopped
 func (broker *Broker) Unwatch(observable Observable) {
 	fmt.Printf("Stop watching %s\n", observable.Identifier())
-	// channel := broker.observables[observable.Identifier()]
-	// close(channel)
+	channel := broker.observables[observable.Identifier()]
+	close(channel)
 }
 
 func (broker *Broker) runPolling(observable Observable) {
@@ -51,9 +49,9 @@ func polling(stop chan bool, observable Observable, consumer Consumer) {
 	for {
 		select {
 		default:
-			fmt.Printf("Poll of [%s] has new iteration\n", observable.Identifier())
+			// fmt.Printf("Poll of [%s] has new iteration\n", observable.Identifier())
 			items := observable.Poll()
-			fmt.Printf("Items received\n")
+			// fmt.Printf("Items received\n")
 			for _, item := range items {
 				consumer.Consume(observable, item)
 			}
@@ -61,6 +59,6 @@ func polling(stop chan bool, observable Observable, consumer Consumer) {
 			fmt.Printf("Signal stop received for watcher of [%v]\n", observable.Identifier())
 			return
 		}
-		time.Sleep(1 * time.Second)
+		time.Sleep(observable.GetInterval())
 	}
 }
