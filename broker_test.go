@@ -42,6 +42,7 @@ func TestPollingIsSpawnedSuccessfull(t *testing.T) {
 		broker.Watch(&observable)
 	}
 
-	time.Sleep(time.Microsecond)
-	assert.Equal(t, observable.launchesCount, 1, "Pollint must be spawned exactly one time")
+	time.Sleep(time.Millisecond)
+	assert.Equal(t, observable.launchesCount, 0, "Polling must be spawned")
+	assert.Equal(t, observable.launchesCount, 1, "Polling must be spawned exactly one time")
 }
