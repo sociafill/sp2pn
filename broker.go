@@ -34,8 +34,15 @@ func (broker *Broker) Watch(observable Observable) {
 // If some observable object has no watchers - polling must be stopped
 func (broker *Broker) Unwatch(observable Observable) {
 	fmt.Printf("Stop watching %s\n", observable.Identifier())
-	channel := broker.observables[observable.Identifier()]
-	close(channel)
+	_, isRunning := broker.observables[observable.Identifier()]
+	if !isRunning {
+		return
+	}
+	broker.identifiers[observable.Identifier()]--
+	if broker.identifiers[observable.Identifier()] == 0 {
+		channel := broker.observables[observable.Identifier()]
+		close(channel)
+	}
 }
 
 func (broker *Broker) runPolling(observable Observable) {
@@ -43,6 +50,11 @@ func (broker *Broker) runPolling(observable Observable) {
 	channel := make(chan bool)
 	broker.observables[observable.Identifier()] = channel
 	go polling(channel, observable, broker.consumer)
+}
+
+func (broker *Broker) stopPolling(observable Observable) {
+	channel := broker.observables[observable.Identifier()]
+	close(channel)
 }
 
 func polling(stop chan bool, observable Observable, consumer Consumer) {
