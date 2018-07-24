@@ -43,6 +43,6 @@ func TestPollingIsSpawnedSuccessfull(t *testing.T) {
 	}
 
 	time.Sleep(time.Millisecond)
-	assert.Equal(t, observable.launchesCount, 0, "Polling must be spawned")
+	assert.NotEqual(t, observable.launchesCount, 0, "Polling must be spawned")
 	assert.Equal(t, observable.launchesCount, 1, "Polling must be spawned exactly one time")
 }
