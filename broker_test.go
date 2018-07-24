@@ -1,4 +1,4 @@
-package main
+package sp2pt
 
 import (
 	"testing"
